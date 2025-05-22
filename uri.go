@@ -25,9 +25,7 @@ const (
 	HTTPSScheme = "https"
 )
 
-const (
-	hierPart = "://"
-)
+const hierPart = "://"
 
 // URI Uniform Resource Identifier (URI) https://tools.ietf.org/html/rfc3986.
 //
