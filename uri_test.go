@@ -140,3 +140,45 @@ func TestFrom(t *testing.T) {
 		})
 	}
 }
+
+func TestIsFileURI(t *testing.T) {
+	tests := []struct {
+		name string
+		s    string
+		want bool
+	}{
+		{
+			name: "File Scheme",
+			s:    "file://code.visualstudio.com/docs/extensions/overview.md",
+			want: true,
+		},
+		{
+			name: "HTTP Scheme",
+			s:    "http://code.visualstudio.com/docs/extensions/overview.md",
+			want: false,
+		},
+		{
+			name: "Empty string",
+			s:    "",
+			want: false,
+		},
+		{
+			name: "Random string",
+			s:    "8o3hsXTXRG",
+			want: false,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := IsFileURI(tt.s)
+
+			if got != tt.want {
+				t.Errorf("want '%v' != got '%v'", tt.want, got)
+			}
+		})
+	}
+}

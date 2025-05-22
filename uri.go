@@ -53,6 +53,10 @@ func (u URI) Filename() string {
 	return filepath.FromSlash(filename)
 }
 
+func IsFileURI(uri string) bool {
+	return strings.HasPrefix(uri, FileScheme+hierPart)
+}
+
 func filename(uri URI) (string, error) {
 	u, err := url.ParseRequestURI(string(uri))
 	if err != nil {
@@ -76,7 +80,7 @@ func New(s string) URI {
 		s = u
 	}
 
-	if strings.HasPrefix(s, FileScheme+hierPart) {
+	if IsFileURI(s) {
 		return URI(s)
 	}
 
