@@ -1,4 +1,4 @@
-module go.lsp.dev/uri
+module github.com/laravel-ls/uri
 
 go 1.22
 
