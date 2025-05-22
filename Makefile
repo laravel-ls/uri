@@ -30,7 +30,6 @@ GO_BENCH_FLAGS ?= -benchmem
 GO_BENCH_FUNC ?= .
 GO_LINT_FLAGS ?=
 
-TOOLS := $(shell cd tools; $(GO) list -f '{{ join .Imports " " }}' -tags=tools)
 TOOLS_BIN := ${CURDIR}/tools/bin
 
 # Set build environment
@@ -78,7 +77,7 @@ lint: fmt lint/golangci-lint  ## Run all linters.
 .PHONY: fmt
 fmt: tools/bin/goimports tools/bin/gofumpt  ## Run goimports and gofumpt.
 	find . -iname "*.go" -not -path "./vendor/**" | xargs -P ${JOBS} ${TOOLS_BIN}/goimports -local=${PKG},$(subst /uri,,$(PKG)) -w
-	find . -iname "*.go" -not -path "./vendor/**" | xargs -P ${JOBS} ${TOOLS_BIN}/gofumpt -s -extra -w
+	find . -iname "*.go" -not -path "./vendor/**" | xargs -P ${JOBS} ${TOOLS_BIN}/gofumpt -extra -w
 
 .PHONY: lint/golangci-lint
 lint/golangci-lint: tools/bin/golangci-lint .golangci.yml  ## Run golangci-lint.
@@ -93,15 +92,18 @@ tools: tools/bin/''  ## Install tools
 
 tools/%: tools/bin/%  ## install an individual dependent tool
 
-tools/bin/%: ${CURDIR}/tools/go.mod ${CURDIR}/tools/go.sum
-	@cd tools; \
-	  for t in ${TOOLS}; do \
-			if [ -z '$*' ] || [ $$(basename $$t) = '$*' ]; then \
-				echo "Install $$t ..."; \
-				GOBIN=${TOOLS_BIN} CGO_ENABLED=0 $(GO) install -v -mod=mod ${GO_FLAGS} "$${t}"; \
-			fi \
-	  done
+tools/bin/golangci-lint:
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh \
+		| sh -s -- -b ${TOOLS_BIN} v2.1.6
 
+tools/bin/gofumpt:
+	GOBIN=${TOOLS_BIN} $(GO) install mvdan.cc/gofumpt@v0.6.0
+
+tools/bin/goimports:
+	GOBIN=${TOOLS_BIN} $(GO) install golang.org/x/tools/cmd/goimports@v0.10.0
+
+tools/bin/gotestsum:
+	GOBIN=${TOOLS_BIN} $(GO) install gotest.tools/gotestsum@v1.6.2
 
 ##@ clean
 
