@@ -53,6 +53,11 @@ func (u URI) Filename() string {
 	return filepath.FromSlash(filename)
 }
 
+// Returns true if URI has a valid filename
+func (u URI) HasFilename() bool {
+	return IsFileURI(string(u))
+}
+
 func IsFileURI(uri string) bool {
 	return strings.HasPrefix(uri, FileScheme+hierPart)
 }
