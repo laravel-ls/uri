@@ -9,9 +9,10 @@ space := $(empty) $(empty)
 # -----------------------------------------------------------------------------
 # go
 
-GO_PATH ?= $(shell go env GOPATH)
-GO_OS ?= $(shell go env GOOS)
-GO_ARCH ?= $(shell go env GOARCH)
+GO ?= go
+GO_PATH ?= $(shell $(GO) env GOPATH)
+GO_OS ?= $(shell $(GO) env GOOS)
+GO_ARCH ?= $(shell $(GO) env GOARCH)
 
 PKG := $(subst $(GO_PATH)/src/,,$(CURDIR))
 CGO_ENABLED ?= 0
@@ -19,9 +20,9 @@ GO_BUILDTAGS=osusergo netgo static
 GO_LDFLAGS=-s -w "-extldflags=-static"
 GO_FLAGS ?= -tags='$(subst $(space),$(comma),${GO_BUILDTAGS})' -ldflags='${GO_LDFLAGS}' -installsuffix=netgo
 
-GO_PKGS := $(shell go list ./...)
+GO_PKGS := $(shell $(GO) list ./...)
 GO_TEST ?= ${TOOLS_BIN}/gotestsum --
-GO_TEST_PKGS ?= $(shell go list -f='{{if or .TestGoFiles .XTestGoFiles}}{{.ImportPath}}{{end}}' ./...)
+GO_TEST_PKGS ?= $(shell $(GO) list -f='{{if or .TestGoFiles .XTestGoFiles}}{{.ImportPath}}{{end}}' ./...)
 GO_TEST_FLAGS ?= -race -count=1
 GO_TEST_FUNC ?= .
 GO_COVERAGE_OUT ?= coverage.out
@@ -29,7 +30,7 @@ GO_BENCH_FLAGS ?= -benchmem
 GO_BENCH_FUNC ?= .
 GO_LINT_FLAGS ?=
 
-TOOLS := $(shell cd tools; go list -f '{{ join .Imports " " }}' -tags=tools)
+TOOLS := $(shell cd tools; $(GO) list -f '{{ join .Imports " " }}' -tags=tools)
 TOOLS_BIN := ${CURDIR}/tools/bin
 
 # Set build environment
@@ -97,7 +98,7 @@ tools/bin/%: ${CURDIR}/tools/go.mod ${CURDIR}/tools/go.sum
 	  for t in ${TOOLS}; do \
 			if [ -z '$*' ] || [ $$(basename $$t) = '$*' ]; then \
 				echo "Install $$t ..."; \
-				GOBIN=${TOOLS_BIN} CGO_ENABLED=0 go install -v -mod=mod ${GO_FLAGS} "$${t}"; \
+				GOBIN=${TOOLS_BIN} CGO_ENABLED=0 $(GO) install -v -mod=mod ${GO_FLAGS} "$${t}"; \
 			fi \
 	  done
 
